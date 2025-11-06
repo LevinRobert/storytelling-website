@@ -14,11 +14,14 @@ pipeline {
         stage("Checkout from SCM") {
             steps {
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/LevinRobert/storytelling-website.git'
+                sh 'ls -lrt'
             }
         }
 
         stage("Build Application") {
             steps {
+                sh 'pwd'
+                sh 'ls'
                 sh "mvn clean package"
             }
         }
