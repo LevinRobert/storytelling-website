@@ -61,9 +61,11 @@ pipeline {
             }
         }
 
-        stage('Check Docker Access') {
+        stage('Check Docker Access (Debugging)') {
             steps {
                 sh 'docker ps'
+                sh 'whoami'
+                sh 'groups'
                 
                 
             }
@@ -73,12 +75,12 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    def dockerImage = docker.build("${IMAGE_NAME}", ".")
+                    sh "docker build -t ${IMAGE_NAME} :${IMAGE_TAG} -t ${IMAGE_NAME}:latest"
 
                     // Push to Docker Hub using stored credentials
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDS}") {
-                        dockerImage.push("${IMAGE_TAG}")
-                        dockerImage.push("latest")
+                    withCredentials([...]) { sh echo "${DOCKER_PASSWORD}" {
+                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}",
+                        sh "docker push ${IMAGE_NAME}:latest"
                     }
                 }
             }
