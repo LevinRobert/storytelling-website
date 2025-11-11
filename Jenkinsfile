@@ -10,12 +10,13 @@ pipeline {
         APP_NAME = "redefinee-website-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "levin16robert"
-        DOCKER_CREDS = "dockerhub"        // Jenkins credentials ID for Docker Hub
+        DOCKER_CREDS = "dockerhub"          // Jenkins credentials ID for Docker Hub
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
 
     stages {
+
         stage('Cleanup Workspace') {
             steps {
                 cleanWs()
@@ -63,26 +64,26 @@ pipeline {
 
         stage('Check Docker Access (Debugging)') {
             steps {
-                sh 'docker ps'
+                sh 'docker ps || true'
                 sh 'whoami'
                 sh 'groups'
-                
-                
             }
         }
 
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh "docker build -t ${IMAGE_NAME} :${IMAGE_TAG} -t ${IMAGE_NAME}:latest"
+                    // Build Docker image
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
 
-                    // Push to Docker Hub using stored credentials
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDS}", passwordVariable: 'dockerhub', usernameVariable: 'levin16robert')]) {
-    // This line uses the variables provided by withCredentials
-    sh "echo \"${dockerhub}\" | docker login -u \"${levin16robert}\" --password-stdin" {
-                        sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}",
-                        sh "docker push ${IMAGE_NAME}:latest"
+                    // Push Docker image to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDS}", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh """
+                            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker push ${IMAGE_NAME}:latest
+                            docker logout
+                        """
                     }
                 }
             }
@@ -101,5 +102,4 @@ pipeline {
             echo 'Build failed. Please check logs for details.'
         }
     }
-}
 }
