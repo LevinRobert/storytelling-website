@@ -63,7 +63,7 @@ pipeline {
 
         stage('Check Docker Access') {
             steps {
-                sh 'docker ps'
+                sh 'sudo docker ps'
                 sh 'who am i'
                 
             }
