@@ -78,7 +78,9 @@ pipeline {
                     sh "docker build -t ${IMAGE_NAME} :${IMAGE_TAG} -t ${IMAGE_NAME}:latest"
 
                     // Push to Docker Hub using stored credentials
-                    withCredentials([...]) { sh echo "${DOCKER_PASSWORD}" {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDS}", passwordVariable: 'dockerhub', usernameVariable: 'levin16robert')]) {
+    // This line uses the variables provided by withCredentials
+    sh "echo \"${dockerhub}\" | docker login -u \"${levin16robert}\" --password-stdin" {
                         sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}",
                         sh "docker push ${IMAGE_NAME}:latest"
                     }
