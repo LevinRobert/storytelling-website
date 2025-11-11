@@ -65,8 +65,8 @@ pipeline {
         stage('Check Docker Access (Debugging)') {
             steps {
                 sh 'docker ps || true'
-                sh 'whoami'
-                sh 'groups'
+                
+                
             }
         }
 
