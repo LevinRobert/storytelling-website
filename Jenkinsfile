@@ -74,6 +74,7 @@ pipeline {
             steps {
                 sh "ls -lrt"
                 sh "pwd"
+                sh "docker build -t testing ."
                 
                 }
             }
