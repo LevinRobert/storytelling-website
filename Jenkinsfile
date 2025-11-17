@@ -11,10 +11,7 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "levin16robert"
         DOCKER_CREDS = "dockerhub"
-
-        // Force lowercase to avoid "invalid reference format"
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}".toLowerCase()
-
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
 
@@ -78,10 +75,8 @@ pipeline {
             steps {
                 script {
 
-                    // Build image with version tag
                     sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
 
-                    // Dockerhub login
                     withCredentials([
                         usernamePassword(
                             credentialsId: "${DOCKER_CREDS}",
@@ -94,10 +89,7 @@ pipeline {
                         '''
                     }
 
-                    // Push version tag
                     sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-
-                    // Push latest
                     sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
                     sh "docker push ${IMAGE_NAME}:latest"
                 }
@@ -107,10 +99,8 @@ pipeline {
         stage('Trivy Scan (Fix: Avoid Disk Full)') {
             steps {
                 script {
-                    // Pre-clean to avoid "no space left on device"
                     sh "docker system prune -af || true"
 
-                    // Run scan
                     sh """
                         docker run --rm \
                         -v /var/run/docker.sock:/var/run/docker.sock \
@@ -120,7 +110,6 @@ pipeline {
                         --severity HIGH,CRITICAL --format table
                     """
 
-                    // Post-clean
                     sh "rm -rf /tmp/trivy-cache || true"
                 }
             }
@@ -132,6 +121,24 @@ pipeline {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
                     sh "docker rmi ${IMAGE_NAME}:latest || true"
                     sh "docker system prune -af || true"
+                }
+            }
+        }
+
+        
+           
+           
+        stage('Trigger CD Pipeline') {
+            steps {
+                script {
+                    build job: 'redefinee-website-CD',   
+                          wait: false,                   
+                          parameters: [
+                              string(name: 'IMAGE_NAME', value: IMAGE_NAME),
+                              string(name: 'IMAGE_TAG', value: IMAGE_TAG)
+                          ]
+
+                    echo "Triggered CD pipeline for deployment"
                 }
             }
         }
