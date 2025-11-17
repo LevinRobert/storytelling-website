@@ -29,7 +29,7 @@ pipeline {
 
         stage('Checkout from SCM') {
             steps {
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/LevinRobert/storytelling-website.git'
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/LevinRobert/redefinee-website.git'
                 sh 'ls -lrt'
             }
         }
