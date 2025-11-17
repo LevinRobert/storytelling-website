@@ -6,9 +6,14 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Run stage
+# Run stage (serve static files)
 FROM node:18-alpine
 WORKDIR /app
-COPY --from=builder /app ./
+
+# Install serve globally
+RUN npm install -g serve
+
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["serve", "-s", "dist", "-l", "3000"]
