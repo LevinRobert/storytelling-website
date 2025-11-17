@@ -1,1 +1,25 @@
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redefinee-website
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redefinee-website
+  template:
+    metadata:
+      labels:
+        app: redefinee-website
+    spec:
+      containers:
+        - name: redefinee-website
+          image: levin16robert/redinee-website-pipeline:1.0.0-84
+          resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
