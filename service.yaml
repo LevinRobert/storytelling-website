@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rededinee-website-service
+  labels:
+    app: redefinee-website 
+spec:
+  selector:
+    app: redefinee-website
+
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+  type: LoadBalancer
